@@ -1,0 +1,25 @@
+name: Deploy to UAT
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: uat
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Create Resource Group
+        run: az group create --name rg-envpinger-uat --location eastus
+
+      - name: Deploy
+        run: |
+          az deployment group create \
+            --resource-group rg-envpinger-uat \
+            --template-file infra/main.bicep \
+            --parameters infra/environments/uat.bicepparam

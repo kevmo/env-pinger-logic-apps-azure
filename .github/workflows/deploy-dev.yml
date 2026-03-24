@@ -1,0 +1,26 @@
+name: Deploy to Dev
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Create Resource Group
+        run: az group create --name rg-envpinger-dev --location eastus
+
+      - name: Deploy
+        run: |
+          az deployment group create \
+            --resource-group rg-envpinger-dev \
+            --template-file infra/main.bicep \
+            --parameters infra/environments/dev.bicepparam

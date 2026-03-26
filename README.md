@@ -132,6 +132,29 @@ Where `<env>` is `dev`, `uat`, or `prod`.
 └── README.md
 ```
 
+## Exporting Logic Apps from the Portal as Bicep
+
+If you build or modify a Logic App in the Azure Portal and want to bring it into this repo:
+
+1. Open the Logic App in the portal
+2. Go to **Automation > Export template** in the left sidebar
+3. This gives you an ARM JSON template — to convert it to Bicep:
+   ```
+   az bicep decompile --file exported-template.json
+   ```
+4. Clean up the generated `.bicep` file — decompiled Bicep is verbose, so you'll want to:
+   - Replace hardcoded values with parameters (especially the environment name)
+   - Remove unnecessary default values and metadata
+   - Match the style in `infra/main.bicep`
+
+You can also deploy ARM JSON templates directly — `az deployment group create` accepts
+both `.bicep` and `.json` files. Bicep is just a cleaner syntax that compiles down to
+ARM JSON. For this repo we use Bicep for readability, but they're functionally identical.
+
+Alternatively, if you just need the workflow definition (triggers + actions), open the
+Logic App's **Code view** in the designer. Copy the JSON and paste it into the
+`properties.definition` block in `main.bicep`.
+
 ## Tearing Down
 
 ```
